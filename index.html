@@ -1,237 +1,575 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Journey to Arupadhatu - Gacha Destiny Simulation</title>
-    <!-- Tailwind CSS untuk Styling Cepat & Estetis -->
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <!-- Google Fonts: Playfair Display (Serif Elegan) & Montserrat (SANS) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
-    
-    <style>
-        body {
-            font-family: 'Montserrat', sans-serif;
-            background-color: #1A1412; /* Deep Earthy Brown */
-        }
-        .font-serif {
-            font-family: 'Playfair Display', serif;
-        }
-        /* Efek Animasi Gacha Glowing berkedip */
-        @keyframes gachaPulse {
-            0%, 100% { border-color: #3A2F2B; box-shadow: none; }
-            50% { border-color: #C89D7C; box-shadow: 0 0 15px rgba(200, 157, 124, 0.4); }
-        }
-        .gacha-active {
-            animation: gachaPulse 0.2s infinite ease-in-out;
-            background-color: #3A2F2B !important;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Georgia', serif;
+  background: #030202;
+  color: #EAE3D2;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-x: hidden;
+  transition: background 1s ease, color 1s ease;
+}
+body.light-mode { background: #FDF6EC; color: #2A1B10; }
+.cinzel { font-family: 'Cinzel', 'Georgia', serif; }
+
+.cosmic-bg {
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(circle at 50% 20%, rgba(85,43,30,0.45) 0%, transparent 45%),
+    radial-gradient(circle at 50% 80%, rgba(255,196,153,0.05) 0%, transparent 50%);
+  z-index: 0; pointer-events: none;
+  transition: opacity 1s ease;
+}
+body.light-mode .cosmic-bg { opacity: 0; }
+
+.light-bg {
+  position: fixed; inset: 0;
+  background: radial-gradient(ellipse at 50% 30%, #FFF8EE 0%, #FFE8C0 40%, #FDF0D8 100%);
+  z-index: 0; pointer-events: none;
+  opacity: 0; transition: opacity 1.2s ease;
+}
+body.light-mode .light-bg { opacity: 1; }
+
+/* FLASH overlay — hanya singkat */
+#flash-overlay {
+  position: fixed; inset: 0;
+  background: radial-gradient(circle at 50% 50%, #FFFFFF, #FFE4AA, #FFC499);
+  opacity: 0; pointer-events: none; z-index: 999;
+}
+@keyframes flashQuick {
+  0%   { opacity: 0; }
+  15%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* RAY CANVAS — garis memancar SVG */
+#ray-canvas {
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 997;
+}
+#ray-canvas line {
+  stroke-linecap: round;
+}
+
+/* WHITENING SWEEP — setelah garis, layar jadi terang */
+#white-sweep {
+  position: fixed; inset: 0;
+  background: #FFFBF3;
+  opacity: 0; pointer-events: none; z-index: 996;
+}
+@keyframes whiteSweep {
+  0%   { opacity: 0; }
+  30%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* MAIN PAGE */
+#main-page {
+  position: relative; z-index: 10; width: 100%; max-width: 420px;
+  min-height: 100vh; display: flex; flex-direction: column;
+  align-items: center; justify-content: space-between;
+  padding: 2rem 1.5rem; gap: 1.5rem; margin: 0 auto;
+}
+
+.header-label {
+  font-size: 9px; letter-spacing: 0.4em;
+  color: rgba(225,170,130,0.5); font-weight: 300;
+  text-transform: uppercase; margin-bottom: 8px;
+  transition: color 0.8s;
+}
+body.light-mode .header-label { color: rgba(160,100,50,0.7); }
+
+.header-title {
+  font-family: 'Cinzel', 'Georgia', serif;
+  font-size: clamp(2rem, 8vw, 3rem); font-weight: 900;
+  letter-spacing: 0.2em;
+  background: linear-gradient(to bottom, #FFFFFF, #A89886);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  transition: background 0.8s;
+}
+body.light-mode .header-title {
+  background: linear-gradient(to bottom, #6B3A1F, #C8784A);
+  -webkit-background-clip: text; background-clip: text;
+}
+.header-divider {
+  width: 32px; height: 1px; background: rgba(225,170,130,0.2);
+  margin: 12px auto 0; transition: background 0.8s;
+}
+body.light-mode .header-divider { background: rgba(160,100,50,0.35); }
+
+.shrine-area {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 1.5rem; width: 100%; flex: 1; justify-content: center;
+}
+.shrine-label h3 {
+  font-family: 'Cinzel', 'Georgia', serif; font-size: 10px;
+  color: #E1AA82; letter-spacing: 0.2em; text-transform: uppercase;
+  font-weight: 700; margin-bottom: 4px; text-align: center; transition: color 0.8s;
+}
+body.light-mode .shrine-label h3 { color: #9B5E30; }
+#shrine-status {
+  font-size: 10px; color: #A89886; font-style: italic;
+  font-weight: 300; text-align: center; transition: color 0.8s;
+}
+body.light-mode #shrine-status { color: #7A5540; }
+
+#roulette-zone {
+  width: 100%; max-width: 320px; max-height: 0; overflow: hidden;
+  opacity: 0; text-align: center;
+  transition: max-height 0.6s cubic-bezier(0.16,1,0.3,1), opacity 0.6s;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+#roulette-zone.open { max-height: 200px; opacity: 1; }
+.roulette-hint {
+  font-size: 8px; color: #E1AA82; letter-spacing: 0.25em;
+  text-transform: uppercase; margin-bottom: 10px; opacity: 0.5;
+}
+body.light-mode .roulette-hint { color: #9B5E30; }
+#roulette-text {
+  font-family: 'Cinzel', 'Georgia', serif;
+  font-size: clamp(1rem, 4vw, 1.25rem); font-weight: 700;
+  letter-spacing: 0.15em; color: #EAE3D2; padding: 8px 16px;
+  transition: color 0.3s, text-shadow 0.3s;
+}
+body.light-mode #roulette-text { color: #3A2010; }
+#roulette-text.locked { color: #FFC499; text-shadow: 0 0 24px rgba(255,196,153,0.9); }
+body.light-mode #roulette-text.locked { color: #C05A20; text-shadow: 0 0 20px rgba(200,100,50,0.5); }
+@keyframes textFluid {
+  0%   { opacity: 0.1; filter: blur(4px); transform: translateY(-8px); }
+  50%  { opacity: 1;   filter: blur(0);   transform: translateY(0); }
+  100% { opacity: 0.1; filter: blur(4px); transform: translateY(8px); }
+}
+.shuffling { animation: textFluid 0.09s infinite linear; }
+
+#core-wrapper {
+  position: relative; width: 144px; height: 144px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.7s cubic-bezier(0.16,1,0.3,1);
+}
+#core-wrapper.shrunk { width: 80px; height: 80px; opacity: 0.4; filter: blur(1px); }
+#core-glow {
+  position: absolute; inset: 0; border-radius: 50%;
+  background: radial-gradient(circle, rgba(225,170,130,0.4) 0%, transparent 70%);
+  filter: blur(16px); transition: opacity 0.5s, background 0.8s;
+}
+body.light-mode #core-glow {
+  background: radial-gradient(circle, rgba(200,100,40,0.25) 0%, transparent 70%);
+}
+#core-btn {
+  width: 128px; height: 128px; border-radius: 50%;
+  background: radial-gradient(circle at 40% 30%, #2A1C18, #0A0706);
+  border: 1.5px solid rgba(225,170,130,0.15);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  cursor: pointer; position: relative; z-index: 2;
+  transition: all 0.8s cubic-bezier(0.16,1,0.3,1), transform 0.1s;
+  -webkit-tap-highlight-color: transparent; user-select: none;
+}
+body.light-mode #core-btn {
+  background: radial-gradient(circle at 40% 30%, #FDECD8, #FFF5EC);
+  border-color: rgba(180,100,50,0.3);
+  box-shadow: 0 4px 32px rgba(200,100,50,0.15);
+}
+#core-wrapper.shrunk #core-btn { width: 64px; height: 64px; }
+#core-btn:active { transform: scale(0.93); }
+#core-glyph {
+  font-family: 'Cinzel', 'Georgia', serif; font-size: 22px;
+  font-weight: 700; color: #E1AA82; letter-spacing: 0.1em;
+  transition: all 0.5s, color 0.8s;
+}
+body.light-mode #core-glyph { color: #8B3A10; }
+#core-wrapper.shrunk #core-glyph { font-size: 13px; }
+#core-prompt {
+  font-family: 'Cinzel', 'Georgia', serif; font-size: 8px;
+  font-weight: 700; color: rgba(225,170,130,0.7);
+  letter-spacing: 0.2em; text-transform: uppercase; margin-top: 4px;
+  transition: all 0.5s, color 0.8s;
+}
+body.light-mode #core-prompt { color: rgba(140,60,20,0.6); }
+
+#shockwave {
+  position: absolute; inset: 0; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,200,140,0.6), transparent 70%);
+  opacity: 0; pointer-events: none; z-index: 1;
+}
+#shockwave.pop { animation: shockwavePop 0.5s cubic-bezier(0.1,0.8,0.3,1) forwards; }
+@keyframes shockwavePop {
+  0%   { transform: scale(0.9); opacity: 0.9; }
+  100% { transform: scale(2.8); opacity: 0; }
+}
+
+#shrine-footer {
+  font-size: 8px; color: #5A4B46; letter-spacing: 0.2em;
+  text-transform: uppercase; transition: opacity 0.5s, color 0.8s;
+}
+body.light-mode #shrine-footer { color: #B8906A; }
+.page-footer {
+  font-size: 8px; color: rgba(74,61,56,0.3); letter-spacing: 0.2em;
+  text-transform: uppercase; transition: color 0.8s;
+}
+body.light-mode .page-footer { color: rgba(140,90,50,0.4); }
+
+/* LOADING */
+#loading-page {
+  display: none; position: fixed; inset: 0;
+  background: #030202; z-index: 200;
+  flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 2rem; transition: background 0.8s;
+}
+body.light-mode #loading-page { background: #FDF6EC; }
+.spinner-wrap {
+  position: relative; width: 72px; height: 72px;
+  margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: center;
+}
+.spin-ring { position: absolute; inset: 0; border-radius: 50%; border: 1px solid transparent; }
+.spin-ring-1 { border-top-color: #E1AA82; animation: spin 0.8s linear infinite; }
+.spin-ring-2 { inset: 8px; border-bottom-color: #B5835C; animation: spin 1.4s linear infinite reverse; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner-icon { font-size: 18px; color: #E1AA82; animation: pingPulse 1s infinite; }
+@keyframes pingPulse { 0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.5;transform:scale(1.2);} }
+#loading-page h2 {
+  font-family: 'Cinzel', 'Georgia', serif; font-size: 12px;
+  color: #E1AA82; letter-spacing: 0.4em; text-transform: uppercase;
+  margin-bottom: 8px; transition: color 0.8s;
+}
+body.light-mode #loading-page h2 { color: #8B3A10; }
+#loading-page p {
+  font-size: 10px; color: #A89886; font-style: italic;
+  font-weight: 300; opacity: 0.6; max-width: 260px; transition: color 0.8s;
+}
+body.light-mode #loading-page p { color: #7A5540; }
+
+/* RESULT */
+#result-page {
+  display: none; position: relative; z-index: 10; width: 100%;
+  max-width: 380px; min-height: 100vh; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 1.5rem 1rem; margin: 0 auto;
+}
+.destiny-card {
+  width: 100%; border-radius: 24px; padding: 1.5rem;
+  display: flex; flex-direction: column; gap: 1rem;
+  animation: floatCard 5s infinite ease-in-out;
+  max-height: 88vh; overflow-y: auto;
+  scrollbar-width: thin; scrollbar-color: rgba(255,196,153,0.2) transparent;
+  transition: background 0.8s, border-color 0.8s, box-shadow 0.8s;
+  background: radial-gradient(circle at 50% 0%, #1A110F 0%, #0A0605 100%);
+  border: 1.5px solid rgba(255,196,153,0.15);
+  box-shadow: 0 30px 70px -10px rgba(0,0,0,0.95);
+}
+body.light-mode .destiny-card {
+  background: linear-gradient(160deg, #FFFAF3 0%, #FFF0DC 100%);
+  border: 1.5px solid rgba(200,120,60,0.25);
+  box-shadow: 0 20px 60px rgba(180,100,40,0.15);
+}
+@keyframes floatCard { 0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);} }
+
+.card-corner { font-size: 10px; color: rgba(255,196,153,0.4); transition: color 0.8s; }
+body.light-mode .card-corner { color: rgba(180,100,50,0.4); }
+.card-top-row { display: flex; justify-content: space-between; align-items: center; }
+.card-brand { font-size: 8px; letter-spacing: 0.3em; font-weight: 700; text-transform: uppercase; color: rgba(255,196,153,0.6); transition: color 0.8s; }
+body.light-mode .card-brand { color: rgba(160,80,30,0.7); }
+.card-tag-pill { padding: 2px 10px; border-radius: 99px; background: #2A1B18; border: 1px solid rgba(255,196,153,0.2); font-size: 8px; color: #FFC499; font-family: monospace; font-weight: 900; letter-spacing: 0.1em; transition: background 0.8s, color 0.8s, border-color 0.8s; }
+body.light-mode .card-tag-pill { background: #FFE8CC; border-color: rgba(200,100,50,0.3); color: #9B4010; }
+.card-title-area { text-align: center; }
+.card-decree { font-size: 8px; color: #E1AA82; letter-spacing: 0.4em; text-transform: uppercase; font-weight: 700; margin-bottom: 4px; transition: color 0.8s; }
+body.light-mode .card-decree { color: #A05828; }
+#final-title { font-family: 'Cinzel', 'Georgia', serif; font-size: clamp(1.4rem, 6vw, 1.8rem); font-weight: 900; letter-spacing: 0.05em; color: #fff; transition: color 0.8s; }
+body.light-mode #final-title { color: #3A1A08; }
+.card-divider { width: 48px; height: 1.5px; background: linear-gradient(to right, transparent, rgba(255,196,153,0.7), transparent); margin: 8px auto 0; transition: background 0.8s; }
+body.light-mode .card-divider { background: linear-gradient(to right, transparent, rgba(180,100,50,0.5), transparent); }
+.card-section { background: #120B0A; border: 1px solid rgba(255,196,153,0.1); border-radius: 12px; padding: 12px 14px; transition: background 0.8s, border-color 0.8s; }
+body.light-mode .card-section { background: #FFF5E8; border-color: rgba(200,120,60,0.15); }
+.section-label { font-size: 8.5px; color: #FFC499; text-transform: uppercase; letter-spacing: 0.15em; font-weight: 700; margin-bottom: 4px; transition: color 0.8s; }
+body.light-mode .section-label { color: #9B4010; }
+.section-text { font-size: clamp(11px, 2.8vw, 13px); color: #fff; line-height: 1.7; text-align: justify; transition: color 0.8s; }
+body.light-mode .section-text { color: #2A1408; }
+.card-npc { border-left: 4px solid #FF3B1A; background: #140C0B; border-radius: 12px; padding: 12px 14px; transition: background 0.8s; }
+body.light-mode .card-npc { background: #FFF0E4; }
+.card-action { background: #0A0605; border: 1px solid rgba(255,196,153,0.1); border-radius: 12px; padding: 12px 14px; transition: background 0.8s, border-color 0.8s; }
+body.light-mode .card-action { background: #FFF8F0; border-color: rgba(200,120,60,0.15); }
+#final-tldr { font-size: clamp(11px, 2.8vw, 12px); color: #fff; font-weight: 800; line-height: 1.6; transition: color 0.8s; }
+body.light-mode #final-tldr { color: #2A1408; }
+.card-reward { background: linear-gradient(to right, #0C1E11, #060D08); border-left: 4px solid #52B763; border: 1px solid rgba(30,80,40,0.3); border-radius: 12px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; transition: background 0.8s, border-color 0.8s; }
+body.light-mode .card-reward { background: linear-gradient(to right, #EAF8EE, #F0FFF4); border-color: rgba(60,140,80,0.25); }
+.reward-label { font-size: 8px; color: #A3FFAF; text-transform: uppercase; letter-spacing: 0.15em; font-weight: 700; transition: color 0.8s; }
+body.light-mode .reward-label { color: #1A6B30; }
+#final-reward { font-size: 13px; font-weight: 900; color: #fff; margin-top: 2px; transition: color 0.8s; }
+body.light-mode #final-reward { color: #0F3A1A; }
+.reward-dot { width: 24px; height: 24px; border-radius: 50%; background: #122E19; border: 1px solid rgba(82,183,99,0.3); display: flex; align-items: center; justify-content: center; font-size: 10px; color: #A3FFAF; font-weight: 700; flex-shrink: 0; animation: pingPulse 2s infinite; transition: background 0.8s, color 0.8s; }
+body.light-mode .reward-dot { background: #C8F0D0; color: #1A6B30; }
+.card-back-btn { width: 100%; background: #201513; color: #FFC499; font-family: 'Cinzel', 'Georgia', serif; font-size: 10px; font-weight: 900; padding: 14px; border-radius: 12px; border: 1px solid rgba(255,196,153,0.2); cursor: pointer; letter-spacing: 0.15em; text-transform: uppercase; transition: background 0.2s, transform 0.1s, color 0.8s, border-color 0.8s; -webkit-tap-highlight-color: transparent; }
+body.light-mode .card-back-btn { background: #FDEBD8; color: #8B3A10; border-color: rgba(180,100,50,0.3); }
+.card-back-btn:hover { background: #2D1D1A; }
+body.light-mode .card-back-btn:hover { background: #F8D8BE; }
+.card-back-btn:active { transform: scale(0.98); }
+.result-footer { font-size: 7px; color: rgba(124,102,92,0.6); letter-spacing: 0.2em; text-transform: uppercase; text-align: center; margin-top: 12px; font-weight: 700; transition: color 0.8s; }
+body.light-mode .result-footer { color: rgba(140,90,50,0.5); }
+</style>
 </head>
-<body class="text-[#EAE3D2] min-h-screen flex flex-col items-center justify-between p-4 md:p-8 selection:bg-[#C89D7C] selection:text-[#1A1412]">
+<body>
 
-    <!-- HEADER -->
-    <header class="text-center my-6 max-w-2xl">
-        <h1 class="font-serif text-4xl md:text-5xl font-bold tracking-wide text-[#C89D7C] mb-2">Journey to Arupadhatu</h1>
-        <p class="text-sm md:text-base text-[#A89886] italic uppercase tracking-widest font-light"></p>
-        <div class="h-[1px] w-32 bg-gradient-to-r from-transparent via-[#C89D7C] to-transparent mx-auto mt-4"></div>
-    </header>
+<div id="flash-overlay"></div>
+<div id="white-sweep"></div>
+<svg id="ray-canvas" xmlns="http://www.w3.org/2000/svg"></svg>
+<div class="cosmic-bg"></div>
+<div class="light-bg"></div>
 
-    <!-- MAIN CONTAINER BOARD -->
-    <main class="w-full max-w-4xl bg-[#231B19] border border-[#3A2F2B] rounded-2xl p-6 md:p-10 shadow-2xl backdrop-blur-sm relative space-y-8">
-        
-        <!-- PUSH GAChA BUTTON & ZONE -->
-        <section class="text-center space-y-6 py-4">
-            <div class="max-w-md mx-auto space-y-2">
-                <h2 class="font-serif text-2xl text-[#EAE3D2]">Anuan Quest</h2>
-                <p class="text-xs text-[#A89886] leading-relaxed">apakek .</p>
-            </div>
+<div id="main-page">
+  <header style="text-align:center;width:100%;">
+    <p class="header-label">Journey to</p>
+    <h1 class="cinzel header-title">ARUPADATHU</h1>
+    <div class="header-divider"></div>
+  </header>
+  <div class="shrine-area">
+    <div class="shrine-label">
+      <h3 class="cinzel">Prasasti Takdir</h3>
+      <p id="shrine-status">Ketuk inti mandala untuk memecah segel karma.</p>
+    </div>
+    <div id="roulette-zone">
+      <span class="roulette-hint">Memilah Lembaran Jiwa</span>
+      <div id="roulette-text">INITIATING</div>
+    </div>
+    <div id="core-wrapper">
+      <div id="shockwave"></div>
+      <div id="core-glow"></div>
+      <div id="core-btn" onclick="activateGacha()" role="button" aria-label="Aktifkan gacha takdir">
+        <span id="core-glyph" class="cinzel">IV</span>
+        <span id="core-prompt" class="cinzel">SENTUH</span>
+      </div>
+    </div>
+    <p id="shrine-footer">Destiny Pulse Matrix</p>
+  </div>
+  <footer class="page-footer">Arupadhatu Monolith Array</footer>
+</div>
 
-            <div>
-                <button onclick="drawGacha()" id="gacha-btn" class="bg-gradient-to-r from-[#C89D7C] to-[#A87C5C] text-[#1A1412] hover:from-[#D7B192] hover:to-[#B98C6B] font-bold text-base px-8 py-4 rounded-xl transition-all shadow-xl transform active:scale-95 flex items-center justify-center gap-3 mx-auto cursor-pointer tracking-wider">
-                    ✨ Buka Kitab Takdir 
-                </button>
-            </div>
-        </section>
+<div id="loading-page">
+  <div class="spinner-wrap">
+    <div class="spin-ring spin-ring-1"></div>
+    <div class="spin-ring spin-ring-2"></div>
+    <span class="spinner-icon">✦</span>
+  </div>
+  <h2 class="cinzel">MENGIKUTI ALIRAN</h2>
+  <p>"Melebur kehendak ego ke dalam harmoni kosmis..."</p>
+</div>
 
-        
-        <section class="space-y-4">
-            <h3 class="text-xs text-[#A89886] uppercase tracking-widest text-center">Kemungkinan Aliran Karma (Pool Quest)</h3>
-            
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <!-- Card 1 -->
-                <div id="qcard-1" class="quest-display-card bg-[#1A1412] border border-[#3A2F2B] p-5 rounded-xl transition-all duration-300 opacity-40">
-                    <span class="text-xs text-[#A89886] block font-semibold mb-1">Quest I</span>
-                    <span class="font-serif text-lg font-medium block text-[#EAE3D2]">Relief Trade</span>
-                </div>
-                <!-- Card 2 -->
-                <div id="qcard-2" class="quest-display-card bg-[#1A1412] border border-[#3A2F2B] p-5 rounded-xl transition-all duration-300 opacity-40">
-                    <span class="text-xs text-[#A89886] block font-semibold mb-1">Quest II</span>
-                    <span class="font-serif text-lg font-medium block text-[#EAE3D2]">The Karma Balance</span>
-                </div>
-                <!-- Card 3 -->
-                <div id="qcard-3" class="quest-display-card bg-[#1A1412] border border-[#3A2F2B] p-5 rounded-xl transition-all duration-300 opacity-40">
-                    <span class="text-xs text-[#A89886] block font-semibold mb-1">Quest III</span>
-                    <span class="font-serif text-lg font-medium block text-[#EAE3D2]">Mirror of Deeds</span>
-                </div>
-                <!-- Card 4 -->
-                <div id="qcard-4" class="quest-display-card bg-[#1A1412] border border-[#3A2F2B] p-5 rounded-xl transition-all duration-300 opacity-40">
-                    <span class="text-xs text-[#A89886] block font-semibold mb-1">Quest IV</span>
-                    <span class="font-serif text-lg font-medium block text-[#EAE3D2]">Sangha Offering</span>
-                </div>
-            </div>
-        </section>
+<div id="result-page">
+  <div class="destiny-card">
+    <div class="card-top-row">
+      <span class="card-corner">✦</span>
+      <span class="card-brand">Arupadhatu Artifact</span>
+      <span class="card-corner">✦</span>
+    </div>
+    <div class="card-top-row">
+      <span></span>
+      <div class="card-tag-pill" id="final-tag">QUEST 01</div>
+      <span></span>
+    </div>
+    <div class="card-title-area">
+      <p class="card-decree">— SAMSARA DECREE —</p>
+      <h2 id="final-title" class="cinzel">Nama Quest</h2>
+      <div class="card-divider"></div>
+    </div>
+    <div class="card-section">
+      <p class="section-label">📜 Epilog Takdir</p>
+      <p id="final-desc" class="section-text"></p>
+    </div>
+    <div class="card-npc">
+      <p class="section-label">🧘 Bisikan Sanubari</p>
+      <p id="final-npc" class="section-text" style="font-style:italic;"></p>
+    </div>
+    <div class="card-action">
+      <p class="section-label">⚡ Perwujudan Aksi</p>
+      <p id="final-tldr"></p>
+    </div>
+    <div class="card-reward">
+      <div>
+        <p class="reward-label">🎁 Hasil Kompensasi Karma</p>
+        <p id="final-reward"></p>
+      </div>
+      <div class="reward-dot">✦</div>
+    </div>
+    <button class="card-back-btn" onclick="returnToGateway()">↩ Kembalikan Kartu Ke Candi</button>
+  </div>
+  <p class="result-footer">Arupadhatu Mandala Array • 2026</p>
+</div>
 
-        <!-- FINAL DISPLAY: HASIL GACHA YANG AKAN TERBUKA -->
-        <section id="final-card-panel" class="hidden bg-[#1D1614] border-2 border-[#C89D7C]/30 rounded-xl p-6 md:p-8 space-y-6 relative transition-all duration-300 animate-fade-in">
-            <div class="absolute top-0 right-0 transform translate-x-1 -translate-y-2 bg-[#C89D7C] text-[#1A1412] text-xs font-bold px-3 py-1 rounded shadow-md uppercase tracking-wider animate-pulse" id="final-tag">
-                HASIL GACHA MURNI
-            </div>
-            
-            <div>
-                <h3 id="final-title" class="font-serif text-2xl text-[#C89D7C]">Nama Aksi</h3>
-                <div class="h-[1px] w-20 bg-[#C89D7C]/50 mt-1"></div>
-            </div>
+<script>
+const quests = [
+  { title:"Relief Trade", desc:"Melepaskan keterikatan kepemilikan demi keharmonisan semesta. Lakukan kompromi untuk kemajuan spiritual bersama.", npc:"Bukalah komunikasi yang jujur. Tukarkan Relief Card milikmu dengan pemain lain melalui jalur negosiasi terbuka.", tldr:"Tukar Relief Card dengan pemain lain secara negosiasi terbuka.", reward:"+3 Langkah untuk KEDUA pemain" },
+  { title:"The Karma Balance", desc:"Waktunya menghitung berat ringannya timbunan niat (Karma) yang terkumpul dalam genggaman tanganmu.", npc:"Mari kita hitung tumpukanmu. Apakah hasrat duniamu melebihi kebajikan batinmu? Hukum karma mutlak.", tldr:"Audit Kartu: Jika Strategy Card > Relief Card → Freeze 1 Ronde. Jika sebaliknya → Double Turn.", reward:"Double Turn / Freeze Lambat" },
+  { title:"Mirror of Deeds", desc:"Langkah hidupmu adalah gaung dari keputusan makhluk lain di sekitarmu. Tidak ada entitas yang benar-benar terisolasi.", npc:"Pilihlah salah satu cermin jiwa lawanmu. Rasakan resonansi energi kosmis mereka dan ikutlah bergerak maju.", tldr:"Pilih 1 lawan, pionmu melangkah maju sejauh angka dadu terakhir mereka.", reward:"+1 Relief Card Baru" },
+  { title:"Sangha Offering", desc:"Komunitas pencari kesadaran tidak akan membiarkan ada satu jiwa pun yang tertinggal jauh di belenggu samsara bawah.", npc:"Salurkan bantuan tulusmu ke kolam pool suci. Sokonglah saudara kita yang berada di barisan paling belakang.", tldr:"Semua pemain menyumbang kartu ke pool untuk diserahkan ke pemain urutan buncit.", reward:"Penyumbang: +2 | Pemicu: +5 Langkah" }
+];
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
-                <div class="space-y-4">
-                    <div>
-                        <h5 class="text-xs text-[#A89886] uppercase tracking-wider font-semibold mb-1">📜 Deskripsi Takdir</h5>
-                        <p id="final-desc" class="text-[#EAE3D2] leading-relaxed"></p>
-                    </div>
-                    <div class="bg-[#281F1D] p-4 rounded-lg border border-[#3A2F2B]">
-                        <h5 class="text-xs text-[#C89D7C] uppercase tracking-wider font-semibold mb-1">🧘‍♂️ pesan dari </h5>
-                        <p id="final-npc" class="text-[#EAE3D2] italic"></p>
-                    </div>
-                </div>
+let running = false;
 
-                <div class="space-y-4 flex flex-col justify-between">
-                    <div class="bg-[#231B19] p-4 rounded-lg border-l-4 border-[#C89D7C]">
-                        <h5 class="text-xs text-[#A89886] uppercase tracking-wider font-semibold mb-1">⚡aturan </h5>
-                        <p id="final-tldr" class="text-[#EAE3D2] font-medium"></p>
-                    </div>
-                    <div class="bg-[#1F2621] p-4 rounded-lg border border-[#384D3F] flex items-center justify-between">
-                        <div>
-                            <h5 class="text-xs text-[#8FBC94] uppercase tracking-wider font-semibold mb-0.5">🎁 Konsekuensi / Reward</h5>
-                            <p id="final-reward" class="text-[#8FBC94] font-medium text-base"></p>
-                        </div>
-                        <span class="text-2xl">✨</span>
-                    </div>
-                </div>
-            </div>
-        </section>
+function shootRays(cx, cy, onDone) {
+  const svg = document.getElementById('ray-canvas');
+  svg.innerHTML = '';
+  const W = window.innerWidth, H = window.innerHeight;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
 
-    </main>
+  const colors = ['#FFC499','#FFE4AA','#E1AA82','#FFD580','#FFFBF0','#FFB870','#FFF0C0'];
+  const count = 18;
+  const lines = [];
 
-    <!-- FOOTER -->
-    <footer class="text-center text-xs text-[#6E5D57] my-6">
-        © 2026 Journey to Arupadhatu. Sistem Acak Jagat Raya Tanpa Ego Terikat.
-    </footer>
+  for (let i = 0; i < count; i++) {
+    const angle = (360 / count) * i + (Math.random() - 0.5) * 10;
+    const rad = angle * Math.PI / 180;
+    const maxLen = Math.sqrt(W * W + H * H);
+    const ex = cx + Math.cos(rad) * maxLen;
+    const ey = cy + Math.sin(rad) * maxLen;
+    const w = 1 + Math.random() * 3;
+    const color = colors[i % colors.length];
 
-    <!-- JAVASCRIPT LOGIC GACHA ROULETTE -->
-    <script>
-        // Database Data Quest Sesuai Dokumen Alur
-        const mainQuests = {
-            1: {
-                title: "Relief Trade",
-                desc: "Melepaskan keterikatan kepemilikan demi keharmonisan semesta. Lakukan kompromi untuk kemajuan spiritual bersama.",
-                npc: "\"Bukalah komunikasi yang jujur. Tukarkan Relief Card milikmu dengan pemain lain melalui jalur negosiasi terbuka.\"",
-                tldr: "Tukar Relief Card dengan pemain lain secara negosiasi terbuka.",
-                reward: "+3 Langkah untuk KEDUA pemain yang bertransaksi"
-            },
-            2: {
-                title: "The Karma Balance",
-                desc: "Waktunya menghitung berat ringannya timbunan niat (Karma) yang terkumpul dalam genggaman tanganmu.",
-                npc: "\"Mari kita hitung tumpukanmu. Apakah hasrat duniamu (Strategy) melebihi kebajikan batinmu (Relief)? Hukum karma mutlak.\"",
-                tldr: "Audit Kartu Tangan: Jika Strategy Card > Relief Card -> Freeze 1 Ronde. Jika Relief Card >= Strategy Card -> Double Turn.",
-                reward: "Double Turn ATAU Freeze (Tergantung Isi Tangan)"
-            },
-            3: {
-                title: "Mirror of Deeds",
-                desc: "Langkah hidupmu adalah gaung dari keputusan makhluk lain di sekitarmu. Tidak ada entitas yang benar-benar terisolasi.",
-                npc: "\"Pilihlah salah satu cermin jiwa lawanmu. Rasakan resonansi energi kosmis mereka dan biarkan dirimu ikut bergerak maju.\"",
-                tldr: "Pilih 1 pemain lawan, pion milikmu ikut bergerak maju sejauh angka dadu terakhir yang mereka lemparkan.",
-                reward: "+1 Relief Card Baru"
-            },
-            4: {
-                title: "Sangha Offering",
-                desc: "Komunitas pencari kesadaran (Sangha) tidak akan membiarkan ada satu jiwa pun yang tertinggal jauh di belenggu samsara bawah.",
-                npc: "\"Salurkan bantuan tulusmu ke kolam pool suci. Sokonglah saudara kita yang berada di barisan paling belakang papan.\"",
-                tldr: "Semua pemain menyumbang kartu ke pool kolektif untuk diserahkan ke pemain di urutan paling belakang.",
-                reward: "Penyumbang: +2 Langkah | Pemicu Quest: +5 Langkah"
-            }
-        };
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', cx); line.setAttribute('y1', cy);
+    line.setAttribute('x2', cx); line.setAttribute('y2', cy);
+    line.setAttribute('stroke', color);
+    line.setAttribute('stroke-width', w);
+    line.setAttribute('stroke-linecap', 'round');
+    line.setAttribute('opacity', '0');
+    svg.appendChild(line);
+    lines.push({ el: line, ex, ey, cx, cy, color });
+  }
 
-        function drawGacha() {
-            const gachaBtn = document.getElementById('gacha-btn');
-            const finalPanel = document.getElementById('final-card-panel');
-            
-            // Mengunci tombol dan menyembunyikan hasil lama saat proses gacha dimulai
-            gachaBtn.disabled = true;
-            gachaBtn.innerText = "🌀...";
-            finalPanel.classList.add('hidden');
-            
-            let cycleCount = 0;
-            let currentHighlight = 1;
-            
-            // Simulasi Efek Gacha Roulette Berputar Cepat
-            const rouletteInterval = setInterval(() => {
-                resetCardOpacity();
-                
-                // Beri highlight acak/bergantian pada pool kartu
-                currentHighlight = (currentHighlight % 4) + 1;
-                const activeCard = document.getElementById(`qcard-${currentHighlight}`);
-                activeCard.classList.remove('opacity-40');
-                activeCard.classList.add('gacha-active', 'opacity-100');
-                
-                cycleCount++;
-                
-                // Kondisi Berhenti Setelah Putaran Cukup
-                if (cycleCount > 15) {
-                    clearInterval(rouletteInterval);
-                    
-                    // Menentukan Hasil Takdir Akhir secara Acak (1-4)
-                    const finalQuestResult = Math.floor(Math.random() * 4) + 1;
-                    
-                    resetCardOpacity();
-                    
-                    // Kunci Visual Kartu Terpilih
-                    const finalCard = document.getElementById(`qcard-${finalQuestResult}`);
-                    finalCard.classList.remove('opacity-40');
-                    finalCard.classList.add('opacity-100', 'border-[#C89D7C]', 'bg-[#2D2320]');
-                    
-                    // Render Data ke Panel Bawah
-                    renderFinalPanel(mainQuests[finalQuestResult], finalQuestResult);
-                    
-                    // Kembalikan Keadaan Tombol
-                    gachaBtn.disabled = false;
-                    gachaBtn.innerText = "✨ Buka Kitab Takdir (GACHA)";
-                }
-            }, 100);
+  const duration = 520;
+  const stagger = 18;
+  let finished = 0;
+
+  lines.forEach((l, i) => {
+    const delay = i * stagger;
+    setTimeout(() => {
+      const start = performance.now();
+      function step(now) {
+        const t = Math.min((now - start) / duration, 1);
+        const ease = 1 - Math.pow(1 - t, 3);
+        const curX = l.cx + (l.ex - l.cx) * ease;
+        const curY = l.cy + (l.ey - l.cy) * ease;
+        l.el.setAttribute('x2', curX);
+        l.el.setAttribute('y2', curY);
+        l.el.setAttribute('opacity', t < 0.5 ? t * 2 : 2 - t * 2);
+        if (t < 1) requestAnimationFrame(step);
+        else {
+          finished++;
+          if (finished === lines.length && onDone) onDone();
         }
+      }
+      l.el.setAttribute('opacity', '0.01');
+      requestAnimationFrame(step);
+    }, delay);
+  });
 
-        function renderFinalPanel(data, idNum) {
-            document.getElementById('final-title').innerText = data.title;
-            document.getElementById('final-desc').innerText = data.desc;
-            document.getElementById('final-npc').innerText = data.npc;
-            document.getElementById('final-tldr').innerText = data.tldr;
-            document.getElementById('final-reward').innerText = data.reward;
-            
-            document.getElementById('final-tag').innerText = `TAKDIR QUEST 0${idNum}`;
+  // Fade out semua garis setelah selesai
+  const totalTime = duration + stagger * count + 80;
+  setTimeout(() => { svg.innerHTML = ''; }, totalTime + 100);
+}
 
-            // Tampilkan Panel dengan Smooth Scroll
-            const finalPanel = document.getElementById('final-card-panel');
-            finalPanel.classList.remove('hidden');
-            finalPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
+function activateGacha() {
+  if (running) return;
+  running = true;
 
-        function resetCardOpacity() {
-            document.querySelectorAll('.quest-display-card').forEach(card => {
-                card.className = "quest-display-card bg-[#1A1412] border border-[#3A2F2B] p-5 rounded-xl transition-all duration-300 opacity-40";
-            });
-        }
-    </script>
+  const shockwave = document.getElementById('shockwave');
+  shockwave.className = 'pop';
+  shockwave.addEventListener('animationend', () => shockwave.className = '', { once: true });
+
+  // Cari posisi tengah tombol
+  const btn = document.getElementById('core-btn');
+  const rect = btn.getBoundingClientRect();
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top + rect.height / 2;
+
+  // STEP 1: Tembakkan garis dulu
+  shootRays(cx, cy, () => {
+    // STEP 2: Setelah garis selesai, flash singkat lalu halaman jadi terang
+    const flash = document.getElementById('flash-overlay');
+    flash.style.animation = 'none';
+    flash.style.opacity = '0';
+    void flash.offsetWidth;
+    flash.style.animation = 'flashQuick 0.5s ease-out forwards';
+    flash.addEventListener('animationend', () => {
+      flash.style.opacity = '0'; flash.style.animation = 'none';
+    }, { once: true });
+
+    // White sweep + light mode serentak
+    setTimeout(() => {
+      document.body.classList.add('light-mode');
+    }, 80);
+  });
+
+  // STEP 3: Roulette mulai setelah garis (delay ~700ms)
+  setTimeout(() => {
+    const wrapper = document.getElementById('core-wrapper');
+    wrapper.classList.add('shrunk');
+    document.getElementById('core-glyph').textContent = 'II';
+    document.getElementById('core-prompt').textContent = 'LOCK';
+    document.getElementById('core-glow').style.opacity = '0';
+    document.getElementById('shrine-footer').style.opacity = '0';
+    document.getElementById('shrine-status').textContent = '"Mantra bergema... Dengarkan bisikan takdir."';
+
+    const rz = document.getElementById('roulette-zone');
+    const rt = document.getElementById('roulette-text');
+    rz.classList.add('open');
+    rt.classList.add('shuffling');
+
+    let c = 0;
+    const interval = setInterval(() => {
+      rt.textContent = quests[c % quests.length].title.toUpperCase();
+      c++;
+    }, 65);
+
+    setTimeout(() => {
+      clearInterval(interval);
+      rt.classList.remove('shuffling');
+      const idx = Math.floor(Math.random() * quests.length);
+      const chosen = quests[idx];
+      rt.textContent = '✦ ' + chosen.title.toUpperCase() + ' ✦';
+      rt.classList.add('locked');
+      document.getElementById('shrine-status').textContent = '"Takdir telah terkunci."';
+
+      setTimeout(() => {
+        document.getElementById('main-page').style.display = 'none';
+        document.getElementById('loading-page').style.display = 'flex';
+        setTimeout(() => {
+          document.getElementById('final-title').textContent = chosen.title;
+          document.getElementById('final-desc').textContent = chosen.desc;
+          document.getElementById('final-npc').textContent = '"' + chosen.npc + '"';
+          document.getElementById('final-tldr').textContent = chosen.tldr;
+          document.getElementById('final-reward').textContent = chosen.reward;
+          document.getElementById('final-tag').textContent = 'QUEST 0' + (idx + 1);
+          document.getElementById('loading-page').style.display = 'none';
+          document.getElementById('result-page').style.display = 'flex';
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }, 1400);
+      }, 800);
+    }, 2200);
+  }, 700);
+}
+
+function returnToGateway() {
+  running = false;
+  document.body.classList.remove('light-mode');
+  document.getElementById('result-page').style.display = 'none';
+  document.getElementById('core-wrapper').classList.remove('shrunk');
+  document.getElementById('core-glyph').textContent = 'IV';
+  document.getElementById('core-prompt').textContent = 'SENTUH';
+  document.getElementById('core-glow').style.opacity = '1';
+  document.getElementById('shrine-footer').style.opacity = '1';
+  document.getElementById('shrine-status').textContent = 'Ketuk inti mandala untuk memecah segel karma.';
+  const rz = document.getElementById('roulette-zone');
+  rz.classList.remove('open');
+  const rt = document.getElementById('roulette-text');
+  rt.textContent = 'INITIATING';
+  rt.classList.remove('locked');
+  document.getElementById('main-page').style.display = 'flex';
+}
+</script>
 </body>
 </html>
