@@ -37,7 +37,7 @@ body.light-mode .cosmic-bg { opacity: 0; }
 }
 body.light-mode .light-bg { opacity: 1; }
 
-/* FLASH overlay — hanya singkat */
+/* FLASH overlay */
 #flash-overlay {
   position: fixed; inset: 0;
   background: radial-gradient(circle at 50% 50%, #FFFFFF, #FFE4AA, #FFC499);
@@ -49,7 +49,7 @@ body.light-mode .light-bg { opacity: 1; }
   100% { opacity: 0; }
 }
 
-/* RAY CANVAS — garis memancar SVG */
+/* RAY CANVAS */
 #ray-canvas {
   position: fixed; inset: 0;
   pointer-events: none; z-index: 997;
@@ -58,24 +58,13 @@ body.light-mode .light-bg { opacity: 1; }
   stroke-linecap: round;
 }
 
-/* WHITENING SWEEP — setelah garis, layar jadi terang */
-#white-sweep {
-  position: fixed; inset: 0;
-  background: #FFFBF3;
-  opacity: 0; pointer-events: none; z-index: 996;
-}
-@keyframes whiteSweep {
-  0%   { opacity: 0; }
-  30%  { opacity: 1; }
-  100% { opacity: 0; }
-}
-
 /* MAIN PAGE */
 #main-page {
   position: relative; z-index: 10; width: 100%; max-width: 420px;
   min-height: 100vh; display: flex; flex-direction: column;
   align-items: center; justify-content: space-between;
   padding: 2rem 1.5rem; gap: 1.5rem; margin: 0 auto;
+  transition: opacity 0.6s ease, transform 0.6s ease;
 }
 
 .header-label {
@@ -107,6 +96,9 @@ body.light-mode .header-divider { background: rgba(160,100,50,0.35); }
 .shrine-area {
   display: flex; flex-direction: column; align-items: center;
   gap: 1.5rem; width: 100%; flex: 1; justify-content: center;
+}
+.shrine-label {
+  transition: opacity 0.5s ease;
 }
 .shrine-label h3 {
   font-family: 'Cinzel', 'Georgia', serif; font-size: 10px;
@@ -151,9 +143,14 @@ body.light-mode #roulette-text.locked { color: #C05A20; text-shadow: 0 0 20px rg
 #core-wrapper {
   position: relative; width: 144px; height: 144px;
   display: flex; align-items: center; justify-content: center;
-  transition: all 0.7s cubic-bezier(0.16,1,0.3,1);
+  transition: all 0.8s cubic-bezier(0.16,1,0.3,1);
 }
-#core-wrapper.shrunk { width: 80px; height: 80px; opacity: 0.4; filter: blur(1px); }
+#core-wrapper.shrunk { width: 80px; height: 80px; opacity: 0.5; }
+#core-wrapper.transform-burst { 
+  width: 360px; height: 500px; 
+  opacity: 0; filter: blur(8px);
+}
+
 #core-glow {
   position: absolute; inset: 0; border-radius: 50%;
   background: radial-gradient(circle, rgba(225,170,130,0.4) 0%, transparent 70%);
@@ -177,6 +174,10 @@ body.light-mode #core-btn {
   box-shadow: 0 4px 32px rgba(200,100,50,0.15);
 }
 #core-wrapper.shrunk #core-btn { width: 64px; height: 64px; }
+#core-wrapper.transform-burst #core-btn { 
+  width: 100%; height: 100%; border-radius: 24px;
+}
+
 #core-btn:active { transform: scale(0.93); }
 #core-glyph {
   font-family: 'Cinzel', 'Georgia', serif; font-size: 22px;
@@ -185,6 +186,8 @@ body.light-mode #core-btn {
 }
 body.light-mode #core-glyph { color: #8B3A10; }
 #core-wrapper.shrunk #core-glyph { font-size: 13px; }
+#core-wrapper.transform-burst #core-glyph { opacity: 0; }
+
 #core-prompt {
   font-family: 'Cinzel', 'Georgia', serif; font-size: 8px;
   font-weight: 700; color: rgba(225,170,130,0.7);
@@ -192,6 +195,7 @@ body.light-mode #core-glyph { color: #8B3A10; }
   transition: all 0.5s, color 0.8s;
 }
 body.light-mode #core-prompt { color: rgba(140,60,20,0.6); }
+#core-wrapper.transform-burst #core-prompt { opacity: 0; }
 
 #shockwave {
   position: absolute; inset: 0; border-radius: 50%;
@@ -215,42 +219,17 @@ body.light-mode #shrine-footer { color: #B8906A; }
 }
 body.light-mode .page-footer { color: rgba(140,90,50,0.4); }
 
-/* LOADING */
-#loading-page {
-  display: none; position: fixed; inset: 0;
-  background: #030202; z-index: 200;
-  flex-direction: column; align-items: center; justify-content: center;
-  text-align: center; padding: 2rem; transition: background 0.8s;
-}
-body.light-mode #loading-page { background: #FDF6EC; }
-.spinner-wrap {
-  position: relative; width: 72px; height: 72px;
-  margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: center;
-}
-.spin-ring { position: absolute; inset: 0; border-radius: 50%; border: 1px solid transparent; }
-.spin-ring-1 { border-top-color: #E1AA82; animation: spin 0.8s linear infinite; }
-.spin-ring-2 { inset: 8px; border-bottom-color: #B5835C; animation: spin 1.4s linear infinite reverse; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.spinner-icon { font-size: 18px; color: #E1AA82; animation: pingPulse 1s infinite; }
-@keyframes pingPulse { 0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.5;transform:scale(1.2);} }
-#loading-page h2 {
-  font-family: 'Cinzel', 'Georgia', serif; font-size: 12px;
-  color: #E1AA82; letter-spacing: 0.4em; text-transform: uppercase;
-  margin-bottom: 8px; transition: color 0.8s;
-}
-body.light-mode #loading-page h2 { color: #8B3A10; }
-#loading-page p {
-  font-size: 10px; color: #A89886; font-style: italic;
-  font-weight: 300; opacity: 0.6; max-width: 260px; transition: color 0.8s;
-}
-body.light-mode #loading-page p { color: #7A5540; }
-
-/* RESULT */
+/* RESULT PAGE */
 #result-page {
   display: none; position: relative; z-index: 10; width: 100%;
   max-width: 380px; min-height: 100vh; flex-direction: column;
   align-items: center; justify-content: center;
   padding: 1.5rem 1rem; margin: 0 auto;
+  opacity: 0; transform: scale(0.92);
+  transition: opacity 0.8s cubic-bezier(0.16,1,0.3,1), transform 0.8s cubic-bezier(0.16,1,0.3,1);
+}
+#result-page.show {
+  opacity: 1; transform: scale(1);
 }
 .destiny-card {
   width: 100%; border-radius: 24px; padding: 1.5rem;
@@ -328,7 +307,7 @@ body.light-mode .result-footer { color: rgba(140,90,50,0.5); }
     <div class="header-divider"></div>
   </header>
   <div class="shrine-area">
-    <div class="shrine-label">
+    <div class="shrine-label" id="shrine-lbl-block">
       <h3 class="cinzel">Prasasti Takdir</h3>
       <p id="shrine-status">Ketuk inti mandala untuk memecah segel karma.</p>
     </div>
@@ -346,17 +325,7 @@ body.light-mode .result-footer { color: rgba(140,90,50,0.5); }
     </div>
     <p id="shrine-footer">Destiny Pulse Matrix</p>
   </div>
-  <footer class="page-footer">Arupadhatu Monolith Array</footer>
-</div>
-
-<div id="loading-page">
-  <div class="spinner-wrap">
-    <div class="spin-ring spin-ring-1"></div>
-    <div class="spin-ring spin-ring-2"></div>
-    <span class="spinner-icon">✦</span>
-  </div>
-  <h2 class="cinzel">MENGIKUTI ALIRAN</h2>
-  <p>"Melebur kehendak ego ke dalam harmoni kosmis..."</p>
+  <footer class="page-footer">Arupadhatu  </footer>
 </div>
 
 <div id="result-page">
@@ -397,15 +366,15 @@ body.light-mode .result-footer { color: rgba(140,90,50,0.5); }
     </div>
     <button class="card-back-btn" onclick="returnToGateway()">↩ Kembalikan Kartu Ke Candi</button>
   </div>
-  <p class="result-footer">Arupadhatu Mandala Array • 2026</p>
+  <p class="result-footer">Arupadhatu . 2026</p>
 </div>
 
 <script>
 const quests = [
-  { title:"Relief Trade", desc:"Melepaskan keterikatan kepemilikan demi keharmonisan semesta. Lakukan kompromi untuk kemajuan spiritual bersama.", npc:"Bukalah komunikasi yang jujur. Tukarkan Relief Card milikmu dengan pemain lain melalui jalur negosiasi terbuka.", tldr:"Tukar Relief Card dengan pemain lain secara negosiasi terbuka.", reward:"+3 Langkah untuk KEDUA pemain" },
+  { title:"Relief Trade", desc:"Melepaskan keterikatan kepemilikan demi keharmonisan semesta. Lakukan kompromi untuk kemajuan spiritual bersama.", npc:"Bukalah komunikasi yang jujur. Tukarkan Relief Card milikmu dengan pemain lain melalui jalur negosiasi terbuka.", tldr:"Tukar Relief Card dengan pemain lain secara negosiasi terbuka.", reward:"+3 Langkah untuk KEDUA pemain yang bertransaksi" },
   { title:"The Karma Balance", desc:"Waktunya menghitung berat ringannya timbunan niat (Karma) yang terkumpul dalam genggaman tanganmu.", npc:"Mari kita hitung tumpukanmu. Apakah hasrat duniamu melebihi kebajikan batinmu? Hukum karma mutlak.", tldr:"Audit Kartu: Jika Strategy Card > Relief Card → Freeze 1 Ronde. Jika sebaliknya → Double Turn.", reward:"Double Turn / Freeze Lambat" },
   { title:"Mirror of Deeds", desc:"Langkah hidupmu adalah gaung dari keputusan makhluk lain di sekitarmu. Tidak ada entitas yang benar-benar terisolasi.", npc:"Pilihlah salah satu cermin jiwa lawanmu. Rasakan resonansi energi kosmis mereka dan ikutlah bergerak maju.", tldr:"Pilih 1 lawan, pionmu melangkah maju sejauh angka dadu terakhir mereka.", reward:"+1 Relief Card Baru" },
-  { title:"Sangha Offering", desc:"Komunitas pencari kesadaran tidak akan membiarkan ada satu jiwa pun yang tertinggal jauh di belenggu samsara bawah.", npc:"Salurkan bantuan tulusmu ke kolam pool suci. Sokonglah saudara kita yang berada di barisan paling belakang.", tldr:"Semua pemain menyumbang kartu ke pool untuk diserahkan ke pemain urutan buncit.", reward:"Penyumbang: +2 | Pemicu: +5 Langkah" }
+  { title:"Sangha Offering", desc:"Komunitas pencari kesadaran tidak akan membiarkan ada satu jiwa pun yang tertinggal jauh di belenggu samsara bawah.", npc:"Salurkan bantuan tulusmu ke kolam pool suci. Sokonglah saudara kita yang berada di barisan paling belakang.", tldr:"Semua pemain menyumbang kartu ke pool untuk diserahkan ke pemain urutan buncit.", reward:"Penyumbang Kartu: +2 | orang yang memiliki dadu: +5 Langkah" }
 ];
 
 let running = false;
@@ -467,7 +436,6 @@ function shootRays(cx, cy, onDone) {
     }, delay);
   });
 
-  // Fade out semua garis setelah selesai
   const totalTime = duration + stagger * count + 80;
   setTimeout(() => { svg.innerHTML = ''; }, totalTime + 100);
 }
@@ -480,15 +448,13 @@ function activateGacha() {
   shockwave.className = 'pop';
   shockwave.addEventListener('animationend', () => shockwave.className = '', { once: true });
 
-  // Cari posisi tengah tombol
   const btn = document.getElementById('core-btn');
   const rect = btn.getBoundingClientRect();
   const cx = rect.left + rect.width / 2;
   const cy = rect.top + rect.height / 2;
 
-  // STEP 1: Tembakkan garis dulu
+  // STEP 1: Efek garis memancar keluar
   shootRays(cx, cy, () => {
-    // STEP 2: Setelah garis selesai, flash singkat lalu halaman jadi terang
     const flash = document.getElementById('flash-overlay');
     flash.style.animation = 'none';
     flash.style.opacity = '0';
@@ -498,15 +464,15 @@ function activateGacha() {
       flash.style.opacity = '0'; flash.style.animation = 'none';
     }, { once: true });
 
-    // White sweep + light mode serentak
     setTimeout(() => {
       document.body.classList.add('light-mode');
     }, 80);
   });
 
-  // STEP 3: Roulette mulai setelah garis (delay ~700ms)
+  // STEP 2: Roulette Nama Quest diaktifkan
   setTimeout(() => {
     const wrapper = document.getElementById('core-wrapper');
+    wrapper.classList.remove('transform-burst'); 
     wrapper.classList.add('shrunk');
     document.getElementById('core-glyph').textContent = 'II';
     document.getElementById('core-prompt').textContent = 'LOCK';
@@ -516,6 +482,11 @@ function activateGacha() {
 
     const rz = document.getElementById('roulette-zone');
     const rt = document.getElementById('roulette-text');
+    
+    // Reset kondisi teks roulette agar animasi acak berjalan normal
+    rt.classList.remove('locked');
+    rz.style.opacity = '1';
+    rz.style.maxHeight = '200px';
     rz.classList.add('open');
     rt.classList.add('shuffling');
 
@@ -525,50 +496,96 @@ function activateGacha() {
       c++;
     }, 65);
 
+    // STEP 3: Kunci hasil gacha & jalankan transformasi melebar
     setTimeout(() => {
       clearInterval(interval);
       rt.classList.remove('shuffling');
       const idx = Math.floor(Math.random() * quests.length);
       const chosen = quests[idx];
-      rt.textContent = '✦ ' + chosen.title.toUpperCase() + ' ✦';
+      rt.textContent = ' ' + chosen.title.toUpperCase() + ' ';
       rt.classList.add('locked');
       document.getElementById('shrine-status').textContent = '"Takdir telah terkunci."';
 
+      // Mulai proses pelebaran bentuk tombol bulat
       setTimeout(() => {
-        document.getElementById('main-page').style.display = 'none';
-        document.getElementById('loading-page').style.display = 'flex';
+        document.getElementById('shrine-lbl-block').style.opacity = '0';
+        rz.style.opacity = '0';
+        rz.style.maxHeight = '0';
+        
+        // Animasi CSS transform-burst diaktifkan
+        wrapper.classList.remove('shrunk');
+        wrapper.classList.add('transform-burst');
+        
+        const mainPg = document.getElementById('main-page');
+        mainPg.style.opacity = '0';
+        mainPg.style.transform = 'scale(0.95)';
+
+        // Isi data ke template kartu hasil gacha
+        document.getElementById('final-title').textContent = chosen.title;
+        document.getElementById('final-desc').textContent = chosen.desc;
+        document.getElementById('final-npc').textContent = '"' + chosen.npc + '"';
+        document.getElementById('final-tldr').textContent = chosen.tldr;
+        document.getElementById('final-reward').textContent = chosen.reward;
+        document.getElementById('final-tag').textContent = 'QUEST 0' + (idx + 1);
+
+        // STEP 4: Sembunyikan Kuil, tampilkan Kartu Hasil Gacha
         setTimeout(() => {
-          document.getElementById('final-title').textContent = chosen.title;
-          document.getElementById('final-desc').textContent = chosen.desc;
-          document.getElementById('final-npc').textContent = '"' + chosen.npc + '"';
-          document.getElementById('final-tldr').textContent = chosen.tldr;
-          document.getElementById('final-reward').textContent = chosen.reward;
-          document.getElementById('final-tag').textContent = 'QUEST 0' + (idx + 1);
-          document.getElementById('loading-page').style.display = 'none';
-          document.getElementById('result-page').style.display = 'flex';
+          mainPg.style.display = 'none';
+          
+          const resultPg = document.getElementById('result-page');
+          resultPg.style.display = 'flex';
+          
+          void resultPg.offsetWidth; 
+          resultPg.classList.add('show');
+          
           window.scrollTo({ top: 0, behavior: 'smooth' });
-        }, 1400);
-      }, 800);
+        }, 600); 
+      }, 900);
     }, 2200);
   }, 700);
 }
 
 function returnToGateway() {
   running = false;
+  
+  const mainPg = document.getElementById('main-page');
+  const resultPg = document.getElementById('result-page');
+  
+  // Sembunyikan halaman kartu secara halus
+  resultPg.classList.remove('show');
+  resultPg.style.display = 'none';
+  
+  // Kembalikan tema kegelapan (dark mode) kuil
   document.body.classList.remove('light-mode');
-  document.getElementById('result-page').style.display = 'none';
-  document.getElementById('core-wrapper').classList.remove('shrunk');
+  
+  // Reset struktur kontainer halaman utama (Kuil)
+  mainPg.style.opacity = '1';
+  mainPg.style.transform = 'scale(1)';
+  mainPg.style.display = 'flex';
+  
+  // PERBAIKAN TOTAL: Reset animasi fisik tombol gacha bundar
+  const wrapper = document.getElementById('core-wrapper');
+  wrapper.classList.remove('transform-burst', 'shrunk');
+  
+  // Kembalikan glyph tulisan tombol semula
   document.getElementById('core-glyph').textContent = 'IV';
   document.getElementById('core-prompt').textContent = 'SENTUH';
   document.getElementById('core-glow').style.opacity = '1';
   document.getElementById('shrine-footer').style.opacity = '1';
+  
+  // Kembalikan visibilitas label status & zona teks roulette
+  document.getElementById('shrine-lbl-block').style.opacity = '1';
   document.getElementById('shrine-status').textContent = 'Ketuk inti mandala untuk memecah segel karma.';
+  
   const rz = document.getElementById('roulette-zone');
   rz.classList.remove('open');
+  rz.style.opacity = '1';
+  rz.style.maxHeight = '0';
+  
+  // Reset teks roulette ke kondisi pabrik awal agar siap diacak kembali
   const rt = document.getElementById('roulette-text');
   rt.textContent = 'INITIATING';
-  rt.classList.remove('locked');
-  document.getElementById('main-page').style.display = 'flex';
+  rt.classList.remove('locked', 'shuffling');
 }
 </script>
 </body>
