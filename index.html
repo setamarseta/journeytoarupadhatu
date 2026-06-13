@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Journey to Arupadhatu</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
@@ -19,25 +20,166 @@ body {
 body.light-mode { background: #FDF6EC; color: #2A1B10; }
 .cinzel { font-family: 'Cinzel', 'Georgia', serif; }
 
+/* EFFECT: Guncangan Layar Rahayu */
+@keyframes magicShake {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  10% { transform: translate(-2px, 1px) rotate(0deg); }
+  30% { transform: translate(3px, 0px) rotate(0deg); }
+  50% { transform: translate(-1px, -1px) rotate(0deg); }
+  70% { transform: translate(2px, 1px) rotate(0deg); }
+}
+.shake-active { animation: magicShake 0.4s ease-in-out; }
+
+/* GATEWAY SPLASH (HALAMAN AWAL) */
+#gate-overlay {
+  position: fixed; inset: 0;
+  background: #000000;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.gate-particles {
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(245,150,90,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* Container Utama Belah Ketupat */
+.seal-container {
+  position: relative;
+  width: 220px; height: 220px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Bingkai Belah Ketupat Luar */
+.seal-stupa-line {
+  position: absolute;
+  border: 1px solid rgba(255,196,153,0.25);
+  transform: rotate(45deg);
+  transition: border-color 0.4s ease;
+}
+.stupa-layer-1 { 
+  inset: 0; 
+  animation: diamondRotateClock 35s linear infinite; 
+}
+.stupa-layer-2 { 
+  inset: 20px; 
+  border: 1.5px dashed rgba(255,160,100,0.35); 
+  animation: diamondRotateCounter 20s linear infinite; 
+}
+.stupa-layer-3 { 
+  inset: 40px; 
+  border: 1px solid rgba(255,228,170,0.2);
+  transform: rotate(45deg);
+}
+
+/* EFEK MELEBAR: Hanya memengaruhi bingkai berputar */
+.seal-container.stretch-active .seal-stupa-line {
+  animation-play-state: paused !important; /* Berhenti berputar saat mulai meregang */
+  animation: frameStretchSplit 0.7s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+/* Memberikan sedikit variasi jeda renggang antar lapisan bingkai */
+.seal-container.stretch-active .stupa-layer-2 { animation-delay: 0.05s; }
+.seal-container.stretch-active .stupa-layer-3 { animation-delay: 0.1s; }
+
+
+/* Inti Tombol Belah Ketupat Solid (DI TENGAH) */
+.seal-core {
+  width: 110px; height: 110px;
+  transform: rotate(45deg); /* Tetap konstan berbentuk belah ketupat */
+  background: radial-gradient(circle, #2A140E 0%, #060303 100%);
+  border: 1.5px solid #FFC499;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  box-shadow: 0 0 35px rgba(255,140,70,0.35), inset 0 0 15px rgba(255,196,153,0.2);
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.2), box-shadow 0.4s ease, border-color 0.4s;
+  z-index: 5;
+}
+
+/* EFEK DIAM & MENGHILANG: Inti tengah tidak melar, langsung memudar halus di tempat */
+.seal-core.fade-out-active {
+  animation: coreFadeStraight 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+/* Membalikkan rotasi isi agar tegak */
+.seal-core-content {
+  transform: rotate(-45deg);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+
+.seal-container:hover .seal-core {
+  transform: rotate(45deg) scale(1.05);
+  box-shadow: 0 0 50px rgba(255,150,80,0.55), inset 0 0 15px rgba(255,255,255,0.1);
+  border-color: #FFF0D0;
+}
+.seal-core svg { fill: none; }
+.seal-core span { font-size: 8px; letter-spacing: 0.25em; color: #FFE4AA; font-weight: 700; margin-top: 6px; }
+
+.gate-prompt {
+  margin-top: 55px; font-size: 9.5px; letter-spacing: 0.35em;
+  color: rgba(255,215,175,0.4); text-transform: uppercase;
+  animation: pulseFadeText 2.5s infinite ease-in-out;
+  text-align: center; padding: 0 20px; line-height: 1.8;
+  transition: opacity 0.3s ease;
+}
+
+/* KEYFRAMES ANIMASI BARU */
+
+/* 1. Bingkai luar meregang horizontal & memipih vertikal */
+@keyframes frameStretchSplit {
+  0% {
+    transform: rotate(45deg) scale(1);
+    opacity: 1;
+  }
+  30% {
+    transform: rotate(45deg) scaleX(2.5) scaleY(0.6);
+    opacity: 0.8;
+  }
+  100% {
+    transform: rotate(45deg) scaleX(4.5) scaleY(0.05);
+    opacity: 0;
+  }
+}
+
+/* 2. Inti tengah tetap diam (hanya rotasi dasar 45°) lalu memudar bersih */
+@keyframes coreFadeStraight {
+  0% {
+    transform: rotate(45deg) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(45deg) scale(0.95); /* Sedikit menyusut ke dalam agar elegan, tidak melar */
+    opacity: 0;
+  }
+}
+
+/* Rotasi Standar Saat Idle */
+@keyframes diamondRotateClock { 0% { transform: rotate(45deg); } 100% { transform: rotate(405deg); } }
+@keyframes diamondRotateCounter { 0% { transform: rotate(45deg); } 100% { transform: rotate(-315deg); } }
+@keyframes pulseFadeText { 0%, 100% { opacity: 0.3; transform: scale(0.99); } 50% { opacity: 0.75; transform: scale(1); } }
+
+/* CANVAS & BACKGROUNDS */
 .cosmic-bg {
   position: fixed; inset: 0;
   background:
     radial-gradient(circle at 50% 20%, rgba(85,43,30,0.45) 0%, transparent 45%),
     radial-gradient(circle at 50% 80%, rgba(255,196,153,0.05) 0%, transparent 50%);
   z-index: 0; pointer-events: none;
-  transition: opacity 1s ease;
 }
 body.light-mode .cosmic-bg { opacity: 0; }
 
 .light-bg {
   position: fixed; inset: 0;
   background: radial-gradient(ellipse at 50% 30%, #FFF8EE 0%, #FFE8C0 40%, #FDF0D8 100%);
-  z-index: 0; pointer-events: none;
-  opacity: 0; transition: opacity 1.2s ease;
+  z-index: 0; pointer-events: none; opacity: 0; transition: opacity 1.2s ease;
 }
 body.light-mode .light-bg { opacity: 1; }
 
-/* FLASH overlay */
 #flash-overlay {
   position: fixed; inset: 0;
   background: radial-gradient(circle at 50% 50%, #FFFFFF, #FFE4AA, #FFC499);
@@ -49,13 +191,9 @@ body.light-mode .light-bg { opacity: 1; }
   100% { opacity: 0; }
 }
 
-/* RAY CANVAS */
 #ray-canvas {
   position: fixed; inset: 0;
   pointer-events: none; z-index: 997;
-}
-#ray-canvas line {
-  stroke-linecap: round;
 }
 
 /* MAIN PAGE */
@@ -64,14 +202,13 @@ body.light-mode .light-bg { opacity: 1; }
   min-height: 100vh; display: flex; flex-direction: column;
   align-items: center; justify-content: space-between;
   padding: 2rem 1.5rem; gap: 1.5rem; margin: 0 auto;
+  opacity: 0; transform: scale(0.96);
   transition: opacity 0.6s ease, transform 0.6s ease;
 }
-
 .header-label {
   font-size: 9px; letter-spacing: 0.4em;
   color: rgba(225,170,130,0.5); font-weight: 300;
   text-transform: uppercase; margin-bottom: 8px;
-  transition: color 0.8s;
 }
 body.light-mode .header-label { color: rgba(160,100,50,0.7); }
 
@@ -81,35 +218,25 @@ body.light-mode .header-label { color: rgba(160,100,50,0.7); }
   letter-spacing: 0.2em;
   background: linear-gradient(to bottom, #FFFFFF, #A89886);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-  transition: background 0.8s;
 }
 body.light-mode .header-title {
   background: linear-gradient(to bottom, #6B3A1F, #C8784A);
   -webkit-background-clip: text; background-clip: text;
 }
-.header-divider {
-  width: 32px; height: 1px; background: rgba(225,170,130,0.2);
-  margin: 12px auto 0; transition: background 0.8s;
-}
+.header-divider { width: 32px; height: 1px; background: rgba(225,170,130,0.2); margin: 12px auto 0; }
 body.light-mode .header-divider { background: rgba(160,100,50,0.35); }
 
 .shrine-area {
   display: flex; flex-direction: column; align-items: center;
   gap: 1.5rem; width: 100%; flex: 1; justify-content: center;
 }
-.shrine-label {
-  transition: opacity 0.5s ease;
-}
 .shrine-label h3 {
   font-family: 'Cinzel', 'Georgia', serif; font-size: 10px;
   color: #E1AA82; letter-spacing: 0.2em; text-transform: uppercase;
-  font-weight: 700; margin-bottom: 4px; text-align: center; transition: color 0.8s;
+  font-weight: 700; margin-bottom: 4px; text-align: center;
 }
 body.light-mode .shrine-label h3 { color: #9B5E30; }
-#shrine-status {
-  font-size: 10px; color: #A89886; font-style: italic;
-  font-weight: 300; text-align: center; transition: color 0.8s;
-}
+#shrine-status { font-size: 10px; color: #A89886; font-style: italic; text-align: center; }
 body.light-mode #shrine-status { color: #7A5540; }
 
 #roulette-zone {
@@ -119,24 +246,20 @@ body.light-mode #shrine-status { color: #7A5540; }
   display: flex; flex-direction: column; align-items: center; justify-content: center;
 }
 #roulette-zone.open { max-height: 200px; opacity: 1; }
-.roulette-hint {
-  font-size: 8px; color: #E1AA82; letter-spacing: 0.25em;
-  text-transform: uppercase; margin-bottom: 10px; opacity: 0.5;
-}
+.roulette-hint { font-size: 8px; color: #E1AA82; letter-spacing: 0.25em; text-transform: uppercase; margin-bottom: 10px; opacity: 0.5; }
 body.light-mode .roulette-hint { color: #9B5E30; }
 #roulette-text {
   font-family: 'Cinzel', 'Georgia', serif;
   font-size: clamp(1rem, 4vw, 1.25rem); font-weight: 700;
   letter-spacing: 0.15em; color: #EAE3D2; padding: 8px 16px;
-  transition: color 0.3s, text-shadow 0.3s;
 }
 body.light-mode #roulette-text { color: #3A2010; }
 #roulette-text.locked { color: #FFC499; text-shadow: 0 0 24px rgba(255,196,153,0.9); }
 body.light-mode #roulette-text.locked { color: #C05A20; text-shadow: 0 0 20px rgba(200,100,50,0.5); }
 @keyframes textFluid {
-  0%   { opacity: 0.1; filter: blur(4px); transform: translateY(-8px); }
+  0%   { opacity: 0.1; filter: blur(3px); transform: translateY(-6px); }
   50%  { opacity: 1;   filter: blur(0);   transform: translateY(0); }
-  100% { opacity: 0.1; filter: blur(4px); transform: translateY(8px); }
+  100% { opacity: 0.1; filter: blur(3px); transform: translateY(6px); }
 }
 .shuffling { animation: textFluid 0.09s infinite linear; }
 
@@ -146,19 +269,14 @@ body.light-mode #roulette-text.locked { color: #C05A20; text-shadow: 0 0 20px rg
   transition: all 0.8s cubic-bezier(0.16,1,0.3,1);
 }
 #core-wrapper.shrunk { width: 80px; height: 80px; opacity: 0.5; }
-#core-wrapper.transform-burst { 
-  width: 360px; height: 500px; 
-  opacity: 0; filter: blur(8px);
-}
+#core-wrapper.transform-burst { width: 360px; height: 500px; opacity: 0; filter: blur(8px); }
 
 #core-glow {
   position: absolute; inset: 0; border-radius: 50%;
   background: radial-gradient(circle, rgba(225,170,130,0.4) 0%, transparent 70%);
-  filter: blur(16px); transition: opacity 0.5s, background 0.8s;
+  filter: blur(16px);
 }
-body.light-mode #core-glow {
-  background: radial-gradient(circle, rgba(200,100,40,0.25) 0%, transparent 70%);
-}
+body.light-mode #core-glow { background: radial-gradient(circle, rgba(200,100,40,0.25) 0%, transparent 70%); }
 #core-btn {
   width: 128px; height: 128px; border-radius: 50%;
   background: radial-gradient(circle at 40% 30%, #2A1C18, #0A0706);
@@ -174,28 +292,14 @@ body.light-mode #core-btn {
   box-shadow: 0 4px 32px rgba(200,100,50,0.15);
 }
 #core-wrapper.shrunk #core-btn { width: 64px; height: 64px; }
-#core-wrapper.transform-burst #core-btn { 
-  width: 100%; height: 100%; border-radius: 24px;
-}
+#core-btn:active { transform: scale(0.94); }
 
-#core-btn:active { transform: scale(0.93); }
-#core-glyph {
-  font-family: 'Cinzel', 'Georgia', serif; font-size: 22px;
-  font-weight: 700; color: #E1AA82; letter-spacing: 0.1em;
-  transition: all 0.5s, color 0.8s;
-}
+#core-glyph { font-family: 'Cinzel', 'Georgia', serif; font-size: 22px; font-weight: 700; color: #E1AA82; letter-spacing: 0.1em; }
 body.light-mode #core-glyph { color: #8B3A10; }
 #core-wrapper.shrunk #core-glyph { font-size: 13px; }
-#core-wrapper.transform-burst #core-glyph { opacity: 0; }
 
-#core-prompt {
-  font-family: 'Cinzel', 'Georgia', serif; font-size: 8px;
-  font-weight: 700; color: rgba(225,170,130,0.7);
-  letter-spacing: 0.2em; text-transform: uppercase; margin-top: 4px;
-  transition: all 0.5s, color 0.8s;
-}
+#core-prompt { font-family: 'Cinzel', 'Georgia', serif; font-size: 8px; font-weight: 700; color: rgba(225,170,130,0.7); letter-spacing: 0.2em; text-transform: uppercase; margin-top: 4px; }
 body.light-mode #core-prompt { color: rgba(140,60,20,0.6); }
-#core-wrapper.transform-burst #core-prompt { opacity: 0; }
 
 #shockwave {
   position: absolute; inset: 0; border-radius: 50%;
@@ -205,18 +309,12 @@ body.light-mode #core-prompt { color: rgba(140,60,20,0.6); }
 #shockwave.pop { animation: shockwavePop 0.5s cubic-bezier(0.1,0.8,0.3,1) forwards; }
 @keyframes shockwavePop {
   0%   { transform: scale(0.9); opacity: 0.9; }
-  100% { transform: scale(2.8); opacity: 0; }
+  100% { transform: scale(2.6); opacity: 0; }
 }
 
-#shrine-footer {
-  font-size: 8px; color: #5A4B46; letter-spacing: 0.2em;
-  text-transform: uppercase; transition: opacity 0.5s, color 0.8s;
-}
+#shrine-footer { font-size: 8px; color: #5A4B46; letter-spacing: 0.2em; text-transform: uppercase; }
 body.light-mode #shrine-footer { color: #B8906A; }
-.page-footer {
-  font-size: 8px; color: rgba(74,61,56,0.3); letter-spacing: 0.2em;
-  text-transform: uppercase; transition: color 0.8s;
-}
+.page-footer { font-size: 8px; color: rgba(74,61,56,0.3); letter-spacing: 0.2em; text-transform: uppercase; }
 body.light-mode .page-footer { color: rgba(140,90,50,0.4); }
 
 /* RESULT PAGE */
@@ -225,19 +323,16 @@ body.light-mode .page-footer { color: rgba(140,90,50,0.4); }
   max-width: 380px; min-height: 100vh; flex-direction: column;
   align-items: center; justify-content: center;
   padding: 1.5rem 1rem; margin: 0 auto;
-  opacity: 0; transform: scale(0.92);
+  opacity: 0; transform: scale(0.94);
   transition: opacity 0.8s cubic-bezier(0.16,1,0.3,1), transform 0.8s cubic-bezier(0.16,1,0.3,1);
 }
-#result-page.show {
-  opacity: 1; transform: scale(1);
-}
+#result-page.show { opacity: 1; transform: scale(1); }
 .destiny-card {
   width: 100%; border-radius: 24px; padding: 1.5rem;
   display: flex; flex-direction: column; gap: 1rem;
   animation: floatCard 5s infinite ease-in-out;
   max-height: 88vh; overflow-y: auto;
   scrollbar-width: thin; scrollbar-color: rgba(255,196,153,0.2) transparent;
-  transition: background 0.8s, border-color 0.8s, box-shadow 0.8s;
   background: radial-gradient(circle at 50% 0%, #1A110F 0%, #0A0605 100%);
   border: 1.5px solid rgba(255,196,153,0.15);
   box-shadow: 0 30px 70px -10px rgba(0,0,0,0.95);
@@ -247,59 +342,90 @@ body.light-mode .destiny-card {
   border: 1.5px solid rgba(200,120,60,0.25);
   box-shadow: 0 20px 60px rgba(180,100,40,0.15);
 }
-@keyframes floatCard { 0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);} }
+@keyframes floatCard { 0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);} }
 
-.card-corner { font-size: 10px; color: rgba(255,196,153,0.4); transition: color 0.8s; }
+.card-corner { font-size: 10px; color: rgba(255,196,153,0.4); }
 body.light-mode .card-corner { color: rgba(180,100,50,0.4); }
 .card-top-row { display: flex; justify-content: space-between; align-items: center; }
-.card-brand { font-size: 8px; letter-spacing: 0.3em; font-weight: 700; text-transform: uppercase; color: rgba(255,196,153,0.6); transition: color 0.8s; }
+.card-brand { font-size: 8px; letter-spacing: 0.3em; font-weight: 700; text-transform: uppercase; color: rgba(255,196,153,0.6); }
 body.light-mode .card-brand { color: rgba(160,80,30,0.7); }
-.card-tag-pill { padding: 2px 10px; border-radius: 99px; background: #2A1B18; border: 1px solid rgba(255,196,153,0.2); font-size: 8px; color: #FFC499; font-family: monospace; font-weight: 900; letter-spacing: 0.1em; transition: background 0.8s, color 0.8s, border-color 0.8s; }
+.card-tag-pill { padding: 2px 10px; border-radius: 99px; background: #2A1B18; border: 1px solid rgba(255,196,153,0.2); font-size: 8px; color: #FFC499; font-family: monospace; font-weight: 900; letter-spacing: 0.1em; }
 body.light-mode .card-tag-pill { background: #FFE8CC; border-color: rgba(200,100,50,0.3); color: #9B4010; }
 .card-title-area { text-align: center; }
-.card-decree { font-size: 8px; color: #E1AA82; letter-spacing: 0.4em; text-transform: uppercase; font-weight: 700; margin-bottom: 4px; transition: color 0.8s; }
+.card-decree { font-size: 8px; color: #E1AA82; letter-spacing: 0.4em; text-transform: uppercase; font-weight: 700; margin-bottom: 4px; }
 body.light-mode .card-decree { color: #A05828; }
-#final-title { font-family: 'Cinzel', 'Georgia', serif; font-size: clamp(1.4rem, 6vw, 1.8rem); font-weight: 900; letter-spacing: 0.05em; color: #fff; transition: color 0.8s; }
+#final-title { font-family: 'Cinzel', 'Georgia', serif; font-size: clamp(1.4rem, 6vw, 1.8rem); font-weight: 900; letter-spacing: 0.05em; color: #fff; }
 body.light-mode #final-title { color: #3A1A08; }
-.card-divider { width: 48px; height: 1.5px; background: linear-gradient(to right, transparent, rgba(255,196,153,0.7), transparent); margin: 8px auto 0; transition: background 0.8s; }
+.card-divider { width: 48px; height: 1.5px; background: linear-gradient(to right, transparent, rgba(255,196,153,0.7), transparent); margin: 8px auto 0; }
 body.light-mode .card-divider { background: linear-gradient(to right, transparent, rgba(180,100,50,0.5), transparent); }
-.card-section { background: #120B0A; border: 1px solid rgba(255,196,153,0.1); border-radius: 12px; padding: 12px 14px; transition: background 0.8s, border-color 0.8s; }
+.card-section { background: #120B0A; border: 1px solid rgba(255,196,153,0.1); border-radius: 12px; padding: 12px 14px; }
 body.light-mode .card-section { background: #FFF5E8; border-color: rgba(200,120,60,0.15); }
-.section-label { font-size: 8.5px; color: #FFC499; text-transform: uppercase; letter-spacing: 0.15em; font-weight: 700; margin-bottom: 4px; transition: color 0.8s; }
+.section-label { font-size: 8.5px; color: #FFC499; text-transform: uppercase; letter-spacing: 0.15em; font-weight: 700; margin-bottom: 4px; }
 body.light-mode .section-label { color: #9B4010; }
-.section-text { font-size: clamp(11px, 2.8vw, 13px); color: #fff; line-height: 1.7; text-align: justify; transition: color 0.8s; }
+.section-text { font-size: clamp(11px, 2.8vw, 13px); color: #fff; line-height: 1.7; text-align: justify; }
 body.light-mode .section-text { color: #2A1408; }
-.card-npc { border-left: 4px solid #FF3B1A; background: #140C0B; border-radius: 12px; padding: 12px 14px; transition: background 0.8s; }
+.card-npc { border-left: 4px solid #FF3B1A; background: #140C0B; border-radius: 12px; padding: 12px 14px; }
 body.light-mode .card-npc { background: #FFF0E4; }
-.card-action { background: #0A0605; border: 1px solid rgba(255,196,153,0.1); border-radius: 12px; padding: 12px 14px; transition: background 0.8s, border-color 0.8s; }
+.card-action { background: #0A0605; border: 1px solid rgba(255,196,153,0.1); border-radius: 12px; padding: 12px 14px; }
 body.light-mode .card-action { background: #FFF8F0; border-color: rgba(200,120,60,0.15); }
-#final-tldr { font-size: clamp(11px, 2.8vw, 12px); color: #fff; font-weight: 800; line-height: 1.6; transition: color 0.8s; }
+#final-tldr { font-size: clamp(11px, 2.8vw, 12px); color: #fff; font-weight: 800; line-height: 1.6; }
 body.light-mode #final-tldr { color: #2A1408; }
-.card-reward { background: linear-gradient(to right, #0C1E11, #060D08); border-left: 4px solid #52B763; border: 1px solid rgba(30,80,40,0.3); border-radius: 12px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; transition: background 0.8s, border-color 0.8s; }
+.card-reward { background: linear-gradient(to right, #0C1E11, #060D08); border: 1px solid rgba(30,80,40,0.3); border-radius: 12px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; }
 body.light-mode .card-reward { background: linear-gradient(to right, #EAF8EE, #F0FFF4); border-color: rgba(60,140,80,0.25); }
-.reward-label { font-size: 8px; color: #A3FFAF; text-transform: uppercase; letter-spacing: 0.15em; font-weight: 700; transition: color 0.8s; }
+.reward-label { font-size: 8px; color: #A3FFAF; text-transform: uppercase; letter-spacing: 0.15em; font-weight: 700; }
 body.light-mode .reward-label { color: #1A6B30; }
-#final-reward { font-size: 13px; font-weight: 900; color: #fff; margin-top: 2px; transition: color 0.8s; }
+#final-reward { font-size: 13px; font-weight: 900; color: #fff; margin-top: 2px; }
 body.light-mode #final-reward { color: #0F3A1A; }
-.reward-dot { width: 24px; height: 24px; border-radius: 50%; background: #122E19; border: 1px solid rgba(82,183,99,0.3); display: flex; align-items: center; justify-content: center; font-size: 10px; color: #A3FFAF; font-weight: 700; flex-shrink: 0; animation: pingPulse 2s infinite; transition: background 0.8s, color 0.8s; }
+.reward-dot { width: 24px; height: 24px; border-radius: 50%; background: #122E19; border: 1px solid rgba(82,183,99,0.3); display: flex; align-items: center; justify-content: center; font-size: 10px; color: #A3FFAF; font-weight: 700; flex-shrink: 0; }
 body.light-mode .reward-dot { background: #C8F0D0; color: #1A6B30; }
-.card-back-btn { width: 100%; background: #201513; color: #FFC499; font-family: 'Cinzel', 'Georgia', serif; font-size: 10px; font-weight: 900; padding: 14px; border-radius: 12px; border: 1px solid rgba(255,196,153,0.2); cursor: pointer; letter-spacing: 0.15em; text-transform: uppercase; transition: background 0.2s, transform 0.1s, color 0.8s, border-color 0.8s; -webkit-tap-highlight-color: transparent; }
+.card-back-btn { width: 100%; background: #201513; color: #FFC499; font-family: 'Cinzel', 'Georgia', serif; font-size: 10px; font-weight: 900; padding: 14px; border-radius: 12px; border: 1px solid rgba(255,196,153,0.2); cursor: pointer; letter-spacing: 0.15em; text-transform: uppercase; transition: background 0.2s, transform 0.1s; -webkit-tap-highlight-color: transparent; }
 body.light-mode .card-back-btn { background: #FDEBD8; color: #8B3A10; border-color: rgba(180,100,50,0.3); }
 .card-back-btn:hover { background: #2D1D1A; }
 body.light-mode .card-back-btn:hover { background: #F8D8BE; }
 .card-back-btn:active { transform: scale(0.98); }
-.result-footer { font-size: 7px; color: rgba(124,102,92,0.6); letter-spacing: 0.2em; text-transform: uppercase; text-align: center; margin-top: 12px; font-weight: 700; transition: color 0.8s; }
+.result-footer { font-size: 7px; color: rgba(124,102,92,0.6); letter-spacing: 0.2em; text-transform: uppercase; text-align: center; margin-top: 12px; font-weight: 700; }
 body.light-mode .result-footer { color: rgba(140,90,50,0.5); }
 </style>
 </head>
 <body>
 
+<!-- GATEWAY SPLASH OVERLAY -->
+<div id="gate-overlay">
+  <div class="gate-particles"></div>
+  
+  <!-- CONTAINER UTAMA -->
+  <div id="main-seal-box" class="seal-container" onclick="pecahkanSegelCandi(event)">
+    <!-- Bingkai Persegi Luar yang Berputar Linier -->
+    <div class="seal-stupa-line stupa-layer-1"></div>
+    <div class="seal-stupa-line stupa-layer-2"></div>
+    <div class="seal-stupa-line stupa-layer-3"></div>
+    
+    <!-- Inti Tengah Solid (Tetap Diam & Memudar di Tempat) -->
+    <div id="main-seal-core" class="seal-core">
+      <div class="seal-core-content">
+        <svg width="28" height="28" viewBox="0 0 24 24" stroke="#FFC499" stroke-width="1.3">
+          <path d="M12 2v3M12 5c-3.5 0-5 3-5 6h10c0-3-1.5-6-5-6zM5 11h14v3H5zM3 14h18v3H3z" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="12" cy="11" r="1.5" fill="#FFC499"/>
+        </svg>
+        <span class="cinzel">MEMASUKI</span>
+      </div>
+    </div>
+  </div>
+  
+  <p id="gate-text-prompt" class="cinzel gate-prompt">Sentuh Inti Stupa Jala<br><span style="font-size:7.5px; opacity:0.6; letter-spacing: 0.2em;">Melarutkan Dimensi Kamadhatu</span></p>
+</div>
+
 <div id="flash-overlay"></div>
-<div id="white-sweep"></div>
 <svg id="ray-canvas" xmlns="http://www.w3.org/2000/svg"></svg>
 <div class="cosmic-bg"></div>
 <div class="light-bg"></div>
 
+<!-- AUDIO ASSETS -->
+<audio id="bgm-loop" src="Morning_Breath_of_the_Suling.mp3" loop></audio>
+<audio id="sfx-whoosh" src="CHRISTMAS MAGICAL WHOOSH SOUND EFFECT.mp3"></audio>
+<audio id="bgm-result" src="result.mp3"></audio>
+
+<!-- MAIN PAGE -->
 <div id="main-page">
   <header style="text-align:center;width:100%;">
     <p class="header-label">journey to</p>
@@ -325,9 +451,10 @@ body.light-mode .result-footer { color: rgba(140,90,50,0.5); }
     </div>
     <p id="shrine-footer">Destiny Pulse Matrix</p>
   </div>
-  <footer class="page-footer">Arupadhatu  </footer>
+  <footer class="page-footer">Arupadhatu</footer>
 </div>
 
+<!-- RESULT PAGE -->
 <div id="result-page">
   <div class="destiny-card">
     <div class="card-top-row">
@@ -378,6 +505,55 @@ const quests = [
 ];
 
 let running = false;
+const bgmLoop = document.getElementById('bgm-loop');
+const sfxWhoosh = document.getElementById('sfx-whoosh');
+const bgmResult = document.getElementById('bgm-result');
+
+function pecahkanSegelCandi(e) {
+  const gate = document.getElementById('gate-overlay');
+  const sealBox = document.getElementById('main-seal-box');
+  const sealCore = document.getElementById('main-seal-core');
+  const promptText = document.getElementById('gate-text-prompt');
+  
+  // Pisahkan trigger animasi: luar melebar, inti diam memudar
+  sealBox.classList.add('stretch-active');
+  sealCore.classList.add('fade-out-active');
+  
+  document.body.classList.add('shake-active');
+  promptText.style.opacity = '0';
+  
+  sfxWhoosh.currentTime = 0;
+  sfxWhoosh.volume = 0.9;
+  sfxWhoosh.play().catch(err => console.log(err));
+
+  // Kilatan cahaya lembut tepat saat transisi berada di tengah proses peregangan
+  setTimeout(() => {
+    const flash = document.getElementById('flash-overlay');
+    flash.style.animation = 'none'; void flash.offsetWidth;
+    flash.style.animation = 'flashQuick 0.6s ease-out forwards';
+  }, 200);
+
+  // Mulai memudarkan seluruh overlay awal secara linear
+  setTimeout(() => {
+    gate.style.opacity = '0';
+  }, 400);
+  
+  // Pindah penuh ke halaman utama
+  setTimeout(() => {
+    document.body.classList.remove('shake-active');
+    gate.style.display = 'none';
+    
+    // Kembalikan state tombol ke normal di balik layar
+    sealBox.classList.remove('stretch-active');
+    sealCore.classList.remove('fade-out-active');
+    promptText.style.opacity = '1';
+    
+    const mainPg = document.getElementById('main-page');
+    mainPg.style.opacity = '1';
+    mainPg.style.transform = 'scale(1)';
+    fadeInAudio(bgmLoop, 2000, 0.5);
+  }, 750);
+}
 
 function shootRays(cx, cy, onDone) {
   const svg = document.getElementById('ray-canvas');
@@ -436,13 +612,18 @@ function shootRays(cx, cy, onDone) {
     }, delay);
   });
 
-  const totalTime = duration + stagger * count + 80;
-  setTimeout(() => { svg.innerHTML = ''; }, totalTime + 100);
+  setTimeout(() => { svg.innerHTML = ''; }, duration + stagger * count + 180);
 }
 
 function activateGacha() {
   if (running) return;
   running = true;
+
+  fadeOutAudio(bgmLoop, 300);
+  
+  sfxWhoosh.currentTime = 0;
+  sfxWhoosh.volume = 0.7;
+  sfxWhoosh.play().catch(e => console.log(e));
 
   const shockwave = document.getElementById('shockwave');
   shockwave.className = 'pop';
@@ -453,26 +634,20 @@ function activateGacha() {
   const cx = rect.left + rect.width / 2;
   const cy = rect.top + rect.height / 2;
 
-  // STEP 1: Efek garis memancar keluar
   shootRays(cx, cy, () => {
     const flash = document.getElementById('flash-overlay');
-    flash.style.animation = 'none';
-    flash.style.opacity = '0';
+    flash.style.animation = 'none'; flash.style.opacity = '0';
     void flash.offsetWidth;
     flash.style.animation = 'flashQuick 0.5s ease-out forwards';
     flash.addEventListener('animationend', () => {
       flash.style.opacity = '0'; flash.style.animation = 'none';
     }, { once: true });
 
-    setTimeout(() => {
-      document.body.classList.add('light-mode');
-    }, 80);
+    setTimeout(() => { document.body.classList.add('light-mode'); }, 80);
   });
 
-  // STEP 2: Roulette Nama Quest diaktifkan
   setTimeout(() => {
     const wrapper = document.getElementById('core-wrapper');
-    wrapper.classList.remove('transform-burst'); 
     wrapper.classList.add('shrunk');
     document.getElementById('core-glyph').textContent = 'II';
     document.getElementById('core-prompt').textContent = 'LOCK';
@@ -483,10 +658,8 @@ function activateGacha() {
     const rz = document.getElementById('roulette-zone');
     const rt = document.getElementById('roulette-text');
     
-    // Reset kondisi teks roulette agar animasi acak berjalan normal
     rt.classList.remove('locked');
-    rz.style.opacity = '1';
-    rz.style.maxHeight = '200px';
+    rz.style.opacity = '1'; rz.style.maxHeight = '200px';
     rz.classList.add('open');
     rt.classList.add('shuffling');
 
@@ -496,7 +669,6 @@ function activateGacha() {
       c++;
     }, 65);
 
-    // STEP 3: Kunci hasil gacha & jalankan transformasi melebar
     setTimeout(() => {
       clearInterval(interval);
       rt.classList.remove('shuffling');
@@ -506,13 +678,10 @@ function activateGacha() {
       rt.classList.add('locked');
       document.getElementById('shrine-status').textContent = '"Takdir telah terkunci."';
 
-      // Mulai proses pelebaran bentuk tombol bulat
       setTimeout(() => {
         document.getElementById('shrine-lbl-block').style.opacity = '0';
-        rz.style.opacity = '0';
-        rz.style.maxHeight = '0';
+        rz.style.opacity = '0'; rz.style.maxHeight = '0';
         
-        // Animasi CSS transform-burst diaktifkan
         wrapper.classList.remove('shrunk');
         wrapper.classList.add('transform-burst');
         
@@ -520,7 +689,6 @@ function activateGacha() {
         mainPg.style.opacity = '0';
         mainPg.style.transform = 'scale(0.95)';
 
-        // Isi data ke template kartu hasil gacha
         document.getElementById('final-title').textContent = chosen.title;
         document.getElementById('final-desc').textContent = chosen.desc;
         document.getElementById('final-npc').textContent = '"' + chosen.npc + '"';
@@ -528,16 +696,14 @@ function activateGacha() {
         document.getElementById('final-reward').textContent = chosen.reward;
         document.getElementById('final-tag').textContent = 'QUEST 0' + (idx + 1);
 
-        // STEP 4: Sembunyikan Kuil, tampilkan Kartu Hasil Gacha
         setTimeout(() => {
           mainPg.style.display = 'none';
-          
           const resultPg = document.getElementById('result-page');
           resultPg.style.display = 'flex';
-          
           void resultPg.offsetWidth; 
           resultPg.classList.add('show');
           
+          fadeInAudio(bgmResult, 1500, 0.6);
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }, 600); 
       }, 900);
@@ -546,46 +712,67 @@ function activateGacha() {
 }
 
 function returnToGateway() {
+  fadeOutAudio(bgmResult, 400);
   running = false;
   
   const mainPg = document.getElementById('main-page');
   const resultPg = document.getElementById('result-page');
   
-  // Sembunyikan halaman kartu secara halus
   resultPg.classList.remove('show');
   resultPg.style.display = 'none';
-  
-  // Kembalikan tema kegelapan (dark mode) kuil
   document.body.classList.remove('light-mode');
   
-  // Reset struktur kontainer halaman utama (Kuil)
-  mainPg.style.opacity = '1';
-  mainPg.style.transform = 'scale(1)';
-  mainPg.style.display = 'flex';
+  mainPg.style.opacity = '1'; mainPg.style.transform = 'scale(1)'; mainPg.style.display = 'flex';
   
-  // PERBAIKAN TOTAL: Reset animasi fisik tombol gacha bundar
   const wrapper = document.getElementById('core-wrapper');
   wrapper.classList.remove('transform-burst', 'shrunk');
   
-  // Kembalikan glyph tulisan tombol semula
   document.getElementById('core-glyph').textContent = 'IV';
   document.getElementById('core-prompt').textContent = 'SENTUH';
   document.getElementById('core-glow').style.opacity = '1';
   document.getElementById('shrine-footer').style.opacity = '1';
-  
-  // Kembalikan visibilitas label status & zona teks roulette
   document.getElementById('shrine-lbl-block').style.opacity = '1';
   document.getElementById('shrine-status').textContent = 'Ketuk inti mandala untuk memecah segel karma.';
   
   const rz = document.getElementById('roulette-zone');
-  rz.classList.remove('open');
-  rz.style.opacity = '1';
-  rz.style.maxHeight = '0';
+  rz.classList.remove('open'); rz.style.opacity = '1'; rz.style.maxHeight = '0';
   
-  // Reset teks roulette ke kondisi pabrik awal agar siap diacak kembali
   const rt = document.getElementById('roulette-text');
   rt.textContent = 'INITIATING';
   rt.classList.remove('locked', 'shuffling');
+
+  setTimeout(() => {
+    if(resultPg.style.display === 'none') { fadeInAudio(bgmLoop, 1000, 0.5); }
+  }, 200);
+}
+
+function fadeInAudio(audioElement, duration, targetVolume) {
+  if (!audioElement) return;
+  audioElement.currentTime = 0; audioElement.volume = 0;
+  audioElement.play().then(() => {
+    const startTime = performance.now();
+    function tick(now) {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      audioElement.volume = progress * targetVolume;
+      if (progress < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }).catch(err => console.log(err));
+}
+
+function fadeOutAudio(audioElement, duration) {
+  if (!audioElement || audioElement.paused) return;
+  const startVolume = audioElement.volume;
+  const startTime = performance.now();
+  function tick(now) {
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    audioElement.volume = startVolume * (1 - progress);
+    if (progress < 1) requestAnimationFrame(tick);
+    else { audioElement.pause(); audioElement.volume = startVolume; }
+  }
+  requestAnimationFrame(tick);
 }
 </script>
 </body>
